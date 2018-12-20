@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Calendar;
 import java.util.LinkedList;
 
 import lombok.Getter;
@@ -16,7 +17,7 @@ public class MySQL {
 	public static final String HOST = "localhost:3306";
 
 	public enum Database {
-		USERS("snowbooks", "user", "snoWbookSuseR");
+		USERS("snowbook_users", "user", "snoWbookSuseR");
 
 		private @Getter @Setter String database, user, password;
 		private @Getter @Setter Connection connection;
@@ -51,7 +52,7 @@ public class MySQL {
 
 		try {
 			db.setResultSet(
-					db.getStatement().executeQuery("SELECT password FROM users WHERE username = '" + username + "'"));
+					db.getStatement().executeQuery("SELECT password FROM user WHERE username = '" + username + "'"));
 
 			if (!db.getResultSet().next()) {
 				loginReturn = "There is no user '" + username + "' registered. Please select 'Register' instead.";
@@ -79,7 +80,7 @@ public class MySQL {
 
 		try {
 			db.setResultSet(
-					db.getStatement().executeQuery("SELECT username FROM users WHERE username = '" + username + "'"));
+					db.getStatement().executeQuery("SELECT username FROM user WHERE username = '" + username + "'"));
 
 			if (db.getResultSet().next())
 				return true;
@@ -93,69 +94,72 @@ public class MySQL {
 		return false;
 	}
 
-	public static Integer getOwnershipId(String username) {
-
+	public static String[] getSecurityKeys(String username) {
+		String[] array = new String[2];
 		Database db = Database.USERS;
-		Integer value = null;
-
 		try {
+
 			db.setResultSet(db.getStatement()
-					.executeQuery(("SELECT ownershipId FROM users WHERE username = '" + username + "'")));
+					.executeQuery("SELECT * FROM securitykeys WHERE username = '" + username + "'"));
 
 			if (db.getResultSet().next()) {
-				value = db.getResultSet().getInt("ownershipId");
+				array[0] = db.getResultSet().getString("key");
+				array[1] = db.getResultSet().getString("vector");
 			}
+
+			db.setResultSet(null);
 
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 
-		return value;
+		return array;
 	}
 	
-	public static String getBusinessList(Integer ownerId) {
-		
+	public static String getPassword(String username) {
 		Database db = Database.USERS;
-		String value = null;
-		
+		String result = null;
 		try {
-			db.setResultSet(db.getStatement().executeQuery(("SELECT businessList FROM businesses WHERE ownershipId = '" + ownerId + "'")));
 			
+			db.setResultSet(
+					db.getStatement().executeQuery("SELECT password FROM user WHERE username = '" + username + "'"));
 			
-			if (db.getResultSet().next()) {
-				return db.getResultSet().getString("businessList");
+			if (!db.getResultSet().next()) {
+				System.err.println("No password found for " + username);
+				return result;
 			}
 			
-		} catch (SQLException e) {
+			result = db.getResultSet().getString("password");
+			
+		}catch (SQLException e) {
 			e.printStackTrace();
 		}
-		
-		return value;
-	}
-	
-	public static String getBusinessName(Integer id) {
-		Database db = Database.USERS;
-		String value = null;
-		
-		try {
-			db.setResultSet(db.getStatement().executeQuery(("SELECT businessName FROM business WHERE businessId = '" + id + "'")));
-			
-			
-			if (db.getResultSet().next()) {
-				return db.getResultSet().getString("businessName");
-			}
-			
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		
-		return value;
+		return result;
 	}
 
-	public static void registerUser(String username, String password) {
+	public static void registerUser(String username, String password, String key, String vector) {
 		Database db = Database.USERS;
 		try {
-			db.getStatement().executeUpdate("INSERT INTO users VALUES ('" + username + "', '0', '" + password + "')");
+			StringBuilder sb = new StringBuilder();
+
+			Calendar calendar = Calendar.getInstance();
+			java.util.Date now = calendar.getTime();
+			java.sql.Timestamp currentTimestamp = new java.sql.Timestamp(now.getTime());
+
+			sb.append("INSERT INTO user VALUES (");
+			sb.append("'" + username + "',");
+			sb.append("'" + password + "',");
+			sb.append("'" + currentTimestamp + "')");
+			db.getStatement().executeUpdate(sb.toString());
+
+			sb = new StringBuilder();
+
+			sb.append("INSERT INTO securitykeys VALUES (");
+			sb.append("'" + username + "',");
+			sb.append("'" + key + "',");
+			sb.append("'" + vector + "')");
+			
+			db.getStatement().executeUpdate(sb.toString());
 
 		} catch (SQLException e) {
 			e.printStackTrace();

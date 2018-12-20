@@ -5,11 +5,13 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 import snow.packet.PacketType;
+import sql.MySQL;
 
 public class Server {
 	
 	public static void main(String[] args) throws IOException {
 		PacketType.init();
+		MySQL.init();
 		startEngine();
 	}
 	

@@ -1,9 +1,9 @@
 package snow.packet.impl;
 
-import snow.Serialize;
 import snow.packet.Packet;
 import snow.packet.PacketType;
 import snow.session.User;
+import sql.MySQL;
 
 public class RegistrationPacket extends Packet {
 	
@@ -16,14 +16,12 @@ public class RegistrationPacket extends Packet {
 		Object[] object;
 		String username = (String) getData()[1];
 		String password = (String) getData()[2];
-
-		User user = Serialize.loadUser(username);
-
-		if (user != null) {
+		
+		if (MySQL.foundUser(username)) {
 			object = new Object[] { getPacketId(), false, "The username '" + username + "' isn't avaliable." };
 		} else {
-			user = new User(username, password);
-			Serialize.saveUser(user);
+			User user = new User(username, password);
+			MySQL.registerUser(username, user.getPassword(), user.getSecurityKey(), user.getVectorKey()); // getPassword is encrypted
 			object = new Object[] { getPacketId(), true, username };
 		}
 		

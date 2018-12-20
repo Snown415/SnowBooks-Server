@@ -36,6 +36,18 @@ public class Worker extends Thread {
 			ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream());
 
 			Object[] data = (Object[]) input.readObject();
+			
+			if (!(data[0] instanceof Integer)) {
+				System.err.println("Invalid Packet!");
+				
+				for (Object o : data) {
+					System.err.print(o.toString());
+				}
+				
+				System.err.println("");
+				return;
+			}
+			
 			Integer packetId = (Integer) data[0];
 
 			if (!PacketType.getPacketTypes().containsKey(packetId)) {

@@ -16,6 +16,9 @@ public class User implements Serializable {
 	
 	private static final long serialVersionUID = 3903711783985379771L;
 	
+	private @Getter @Setter String securityKey;
+	private @Getter @Setter String vectorKey;
+	
 	private @Getter @Setter byte[] key;
 	private @Getter @Setter byte[] vector;
 	
@@ -25,8 +28,10 @@ public class User implements Serializable {
 	public User(String username, String password) {
 		setUsername(username);
 		
-		setKey(generateArray());
-		setVector(generateArray());
+		setSecurityKey(generateSecurityCode());
+		setVectorKey(generateSecurityCode());
+		setKey(generateArray(securityKey));
+		setVector(generateArray(vectorKey));
 		
 		if (vector == null || key == null) {
 			System.err.println("Invalid encryption key or vector!");
@@ -55,11 +60,11 @@ public class User implements Serializable {
 		return null;
 	}
 	
-	private byte[] generateArray() {
+	private byte[] generateArray(String value) {
 		byte[] array;
 		
 		try {
-			array = generateSecurityCode().getBytes("UTF-8");
+			array = value.getBytes("UTF-8");
 			return array;
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();

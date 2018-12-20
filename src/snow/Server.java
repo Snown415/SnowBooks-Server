@@ -14,23 +14,20 @@ public class Server {
 	}
 	
 	private static final Integer PORT = 43595;
-
-	private static ServerSocket serverSocket;
-
+	private static ServerSocket server;
 	public static Thread socketThread;
 
 	public static void startEngine() throws IOException {
-		try {
-			serverSocket = new ServerSocket(PORT);
-			
-			while (true) {
-				Socket socket = serverSocket.accept();
-				new Worker(socket).start();
+		server = new ServerSocket(PORT);
+		
+		while (true) {
+			Socket socket = server.accept();
+			new Worker(socket).start();
+	
+			if (server.isClosed()) {
+				System.out.println("Socket closed");
+				break;
 			}
-
-		} catch (IOException e) {
-			System.err.println("Could not connect to port " + PORT + ".");
-			System.exit(0);
 		}
 	}
 }

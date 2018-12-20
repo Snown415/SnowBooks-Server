@@ -5,8 +5,10 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
+import snow.packet.Packet;
 import snow.packet.PacketType;
-import snow.session.User;
+import snow.packet.impl.LoginPacket;
+import snow.packet.impl.RegistrationPacket;
 
 /**
  * Worker; Handles socket.
@@ -22,9 +24,9 @@ public class Worker extends Thread {
 		this.socket = socket;
 	}
 
-	public static Object[] object;
+	public Object[] object;
 
-	public static void setObject(Object... info) {
+	public void setObject(Object... info) {
 		object = info;
 	}
 
@@ -46,63 +48,33 @@ public class Worker extends Thread {
 			}
 
 			PacketType type = PacketType.getPacketTypes().get(packetId);
-
-			// Possible Properties
-			String username;
-			String password;
-			User user;
+			Packet packet;
 
 			switch (type) {
 			case LOGIN:
-				username = (String) data[1];
-				password = (String) data[2];
-				user = Serialize.loadUser(username);
-
-				if (user != null) {
-
-					String attempt = user.encryptPassword(password);
-
-					if (attempt.equals(user.getPassword())) { // Login 
-						object = new Object[] { packetId, true, username };
-					} else { 
-						// Failed Attempt
-						object = new Object[] { packetId, false, "Invalid Credentials" };
-					}
-
-				} else {
-					user = new User(username, password);
-					object = new Object[] { packetId, true, username };
-				}
+				packet = new LoginPacket(type, data);
+				object = packet.process();
 				break;
 				
 			case REGISTER:
-				username = (String) data[1];
-				password = (String) data[2];
-
-				user = Serialize.loadUser(username);
-
-				if (user != null) {
-					object = new Object[] { packetId, false, "The username '" + username + "' isn't avaliable." };
-				} else {
-					user = new User(username, password);
-					Serialize.saveUser(user);
-					object = new Object[] { packetId, true, username };
-				}
+				packet = new RegistrationPacket(type, data);
+				object = packet.process();
 				break;
 				
 			default:
 				object = new Object[] { -1, "Invalid Packet" };
 				break;
-
+			}
+			
+			if (object != null) {
+				output.writeObject(object);
+				output.flush();
+				output.close();
+				object = null;
 			}
 
-			output.writeObject(object);
-			output.flush();
-			output.close();
 		} catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();
 		}
-
-		object = null;
 	}
 }

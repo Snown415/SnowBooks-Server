@@ -1,6 +1,4 @@
-package snow.socket.packet;
-
-import snow.socket.Packet;
+package snow.packet;
 
 public class LoginPacket extends Packet {
 	

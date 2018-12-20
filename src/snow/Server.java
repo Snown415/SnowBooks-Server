@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import snow.socket.PacketType;
+import snow.packet.PacketType;
 
 public class Server {
 	

@@ -5,8 +5,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
+import snow.packet.PacketType;
 import snow.session.User;
-import snow.socket.PacketType;
 
 /**
  * Worker; Handles socket.

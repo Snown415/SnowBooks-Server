@@ -1,4 +1,4 @@
-package snow.socket;
+package snow.packet;
 
 public class PacketEncoder {
 

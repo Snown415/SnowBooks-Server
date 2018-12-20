@@ -1,4 +1,4 @@
-package snow.socket;
+package snow.packet;
 
 import java.util.LinkedHashMap;
 

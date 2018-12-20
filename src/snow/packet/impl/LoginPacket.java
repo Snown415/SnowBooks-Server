@@ -6,10 +6,8 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import snow.Serialize;
 import snow.packet.Packet;
 import snow.packet.PacketType;
-import snow.session.User;
 import sql.MySQL;
 
 public class LoginPacket extends Packet {

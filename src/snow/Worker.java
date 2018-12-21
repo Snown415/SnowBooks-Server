@@ -11,7 +11,7 @@ import snow.packet.impl.LoginPacket;
 import snow.packet.impl.RegistrationPacket;
 
 /**
- * Worker; Handles socket.
+ * Worker; Handles incoming requests in a multi-threaded fashion.
  * 
  * @author Snow
  *
@@ -44,7 +44,6 @@ public class Worker extends Thread {
 					System.err.print(o.toString());
 				}
 				
-				System.err.println("");
 				return;
 			}
 			

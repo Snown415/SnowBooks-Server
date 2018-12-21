@@ -169,20 +169,10 @@ public class MySQL {
 	}
 
 	public static void init() {
+		for (Database db : Database.values())
+			databases.add(db);
 
-		Thread thread = new Thread(new Runnable() {
-
-			@Override
-			public void run() {
-				for (Database db : Database.values())
-					databases.add(db);
-
-				System.out.println("All " + databases.size() + " SQL databases have been defined.");
-			}
-
-		});
-
-		thread.start();
+		System.out.println("All " + databases.size() + " SQL databases have been defined.");
 	}
 
 	private static Connection generateConnection(Database db) {

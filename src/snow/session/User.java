@@ -25,6 +25,8 @@ public class User implements Serializable {
 	private @Getter @Setter String username;
 	private @Getter @Setter String password; // Encrypted
 	
+	private @Getter @Setter boolean isGuest = true; // Guest account; used before registration / login
+	
 	public User(String username, String password) {
 		setUsername(username);
 		

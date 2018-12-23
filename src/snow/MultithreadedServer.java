@@ -8,6 +8,9 @@ import java.util.LinkedList;
 
 import lombok.Getter;
 import lombok.Setter;
+import snow.packet.PacketType;
+import snow.session.Session;
+import snow.session.User;
 
 public class MultithreadedServer implements Runnable {
 	
@@ -15,7 +18,7 @@ public class MultithreadedServer implements Runnable {
 	
 	private @Getter @Setter ServerSocket socket;
 	private @Getter @Setter Thread serverThread;
-	private @Getter LinkedHashMap<String, LinkedList<Worker>> sessions = new LinkedHashMap<>();
+	private @Getter LinkedHashMap<String, Session> sessions = new LinkedHashMap<>();
 	
 	private @Getter @Setter boolean running = true;
 	
@@ -33,21 +36,22 @@ public class MultithreadedServer implements Runnable {
 			try {
 				client = socket.accept();
 				String ip = client.getInetAddress().getHostAddress();
+				
 				System.out.println("Connection requested from " + ip + "...");
 				Worker worker = new Worker(client);
-				worker.start();
-				LinkedList<Worker> list;
+				User user = new User("Guest", "Guest");
+				Session session = new Session(user, worker);
 				
-				if (sessions.containsKey(ip)) {
-					list = sessions.get(ip);
-					list.add(worker);
-				} else {
-					list = new LinkedList<>();
-					list.add(worker);
-					sessions.put(ip, list);
+				if (!sessions.containsKey(ip)) {
+					System.err.println("There is already an active session for " + ip);
+					client.close();
+					return;
 				}
 				
-				System.out.println("The session '" + ip + "' now has " + list.size() + " active connections.");
+				worker.start();
+				sessions.put(ip, session);
+				System.out.println("Successfully connected to " + ip);
+				
 			} catch (IOException e) {
 				e.printStackTrace();
 				System.err.println("Couldn't connect to the incoming connection...");

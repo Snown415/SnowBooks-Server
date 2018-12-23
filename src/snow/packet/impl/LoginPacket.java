@@ -11,7 +11,7 @@ import snow.packet.PacketType;
 import sql.MySQL;
 
 public class LoginPacket extends Packet {
-	
+
 	public LoginPacket(PacketType type, Object[] data) {
 		super(type, data);
 	}
@@ -19,33 +19,34 @@ public class LoginPacket extends Packet {
 	@Override
 	public Object[] process() {
 		Object[] object;
-		
+
 		String username = (String) getData()[1];
 		String password = (String) getData()[2];
-		
+
 		if (!MySQL.foundUser(username)) {
-			object = new Object[] { getPacketId(), false, "There is no user '" + username + "'; Please click 'Register' instead." };
+			object = new Object[] { getPacketId(), false,
+					"There is no user '" + username + "'; Please click 'Register' instead." };
 		} else {
 			String[] keys = MySQL.getSecurityKeys(username);
 			String key = keys[0];
 			String vector = keys[1];
 			String attempt = encryptPassword(password, key, vector);
 			password = MySQL.getPassword(username);
-			
+
 			if (attempt.equals(password)) {
 				object = new Object[] { getPacketId(), true, username };
-			}else {
+			} else {
 				object = new Object[] { getPacketId(), false, "Invalid credentials. Please try again." };
 			}
 		}
-		
+
 		return object;
 	}
-	
+
 	private String encryptPassword(String password, String k, String v) {
 		byte[] vector = v.getBytes();
 		byte[] key = k.getBytes();
-		
+
 		try {
 			IvParameterSpec iv = new IvParameterSpec(vector);
 			SecretKeySpec skeySpec = new SecretKeySpec(key, "AES");
@@ -60,5 +61,5 @@ public class LoginPacket extends Packet {
 		}
 		return null;
 	}
-	
+
 }

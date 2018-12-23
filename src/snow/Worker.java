@@ -8,6 +8,7 @@ import java.net.Socket;
 import snow.packet.Packet;
 import snow.packet.PacketType;
 import snow.packet.impl.LoginPacket;
+import snow.packet.impl.LogoutPacket;
 import snow.packet.impl.RegistrationPacket;
 
 /**
@@ -63,12 +64,25 @@ public class Worker extends Thread {
 
 			switch (type) {
 			case LOGIN:
+				
+				String ip = socket.getInetAddress().getHostAddress();
+				
+				if (Server.getThreadedServer().getSessions().containsKey(ip)) {
+					object = new Object[] { type.getPacketId(), false, "Too many active sessions." };
+					break;
+				}
+				
 				packet = new LoginPacket(type, data);
 				object = packet.process();
 				break;
 				
 			case REGISTER:
 				packet = new RegistrationPacket(type, data);
+				object = packet.process();
+				break;
+				
+			case LOGOUT:
+				packet = new LogoutPacket(type, data, socket);
 				object = packet.process();
 				break;
 				

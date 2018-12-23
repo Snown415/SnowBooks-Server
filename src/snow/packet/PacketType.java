@@ -8,7 +8,9 @@ import lombok.Setter;
 public enum PacketType {
 	
 	LOGIN(1),
-	REGISTER(2);
+	REGISTER(2),
+	LOGOUT(3),
+	SESSION_OVERFLOW(4);
 	
 	private @Getter @Setter int packetId;
 	

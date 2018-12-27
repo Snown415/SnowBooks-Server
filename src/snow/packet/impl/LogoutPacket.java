@@ -1,19 +1,16 @@
 package snow.packet.impl;
 
-import java.io.IOException;
 import java.net.Socket;
 
 import lombok.Getter;
 import lombok.Setter;
-import snow.Server;
 import snow.packet.Packet;
-import snow.packet.PacketType;
-import snow.session.Session;
+import snow.session.Connection;
 
 public class LogoutPacket extends Packet {
 	
-	public LogoutPacket(PacketType type, Object[] data, Socket socket) {
-		super(type, data);
+	public LogoutPacket(Connection connection, Object[] data, Socket socket) {
+		super(connection, data);
 		setSocket(socket);
 	}
 	
@@ -28,21 +25,8 @@ public class LogoutPacket extends Packet {
 			return response;
 		}
 		
-		String ip = socket.getInetAddress().getHostAddress();
-		if (Server.getThreadedServer().getSessions().containsKey(ip)) {
-			
-			Session session = Server.getThreadedServer().getSessions().get(ip);
-			
-			try {
-				session.getWorker().join();
-				socket.close();
-				response = new Object[] { getType().getPacketId(), true };
-			} catch (InterruptedException | IOException e) {
-				System.err.println("Failed to close the worker or thread.");
-			}
-			
-			Server.getThreadedServer().getSessions().remove(ip);			
-		}
+		// String ip = socket.getInetAddress().getHostAddress();
+		
 		
 		return response;
 	}

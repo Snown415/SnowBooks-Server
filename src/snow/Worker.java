@@ -5,11 +5,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
-import snow.packet.Packet;
 import snow.packet.PacketType;
-import snow.packet.impl.LoginPacket;
-import snow.packet.impl.LogoutPacket;
-import snow.packet.impl.RegistrationPacket;
+import snow.session.Connection;
 
 /**
  * Worker; Handles incoming requests in a multi-threaded fashion.
@@ -20,15 +17,16 @@ import snow.packet.impl.RegistrationPacket;
 public class Worker extends Thread {
 
 	protected Socket socket = null;
+	public Connection connection;
 
 	public Worker(Socket socket) {
 		this.socket = socket;
 	}
 
-	public Object[] object;
+	public Object[] response;
 
 	public void setObject(Object... info) {
-		object = info;
+		response = info;
 	}
 
 	public void run() {
@@ -51,51 +49,22 @@ public class Worker extends Thread {
 			Integer packetId = (Integer) data[0];
 
 			if (!PacketType.getPacketTypes().containsKey(packetId)) {
-				object = new Object[] { -1, "Invalid Packet." };
-				output.writeObject(object);
+				response = new Object[] { -1, "Invalid Packet." };
+				output.writeObject(response);
 				output.flush();
 				output.close();
-				object = null;
+				response = null;
 				return;
 			}
 
-			PacketType type = PacketType.getPacketTypes().get(packetId);
-			Packet packet;
-
-			switch (type) {
-			case LOGIN:
-				
-				String ip = socket.getInetAddress().getHostAddress();
-				
-				if (Server.getThreadedServer().getSessions().containsKey(ip)) {
-					object = new Object[] { type.getPacketId(), false, "Too many active sessions." };
-					break;
-				}
-				
-				packet = new LoginPacket(type, data);
-				object = packet.process();
-				break;
-				
-			case REGISTER:
-				packet = new RegistrationPacket(type, data);
-				object = packet.process();
-				break;
-				
-			case LOGOUT:
-				packet = new LogoutPacket(type, data, socket);
-				object = packet.process();
-				break;
-				
-			default:
-				object = new Object[] { -1, "Invalid Packet" };
-				break;
-			}
+			PacketType type = PacketType.getPacketTypes().get(packetId);		
+			response = connection.getPacketHandler().processIncomingPacket(type, data);
 			
-			if (object != null) {
-				output.writeObject(object);
+			if (response != null) {
+				output.writeObject(response);
 				output.flush();
 				output.close();
-				object = null;
+				response = null;
 			}
 
 		} catch (IOException | ClassNotFoundException e) {

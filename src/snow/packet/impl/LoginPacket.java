@@ -8,12 +8,14 @@ import javax.crypto.spec.SecretKeySpec;
 
 import snow.packet.Packet;
 import snow.packet.PacketType;
+import snow.session.Connection;
 import sql.MySQL;
 
 public class LoginPacket extends Packet {
 
-	public LoginPacket(PacketType type, Object[] data) {
-		super(type, data);
+	public LoginPacket(Connection connection, Object[] data) {
+		super(connection, data);
+		setType(PacketType.LOGIN);
 	}
 
 	@Override

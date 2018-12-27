@@ -2,16 +2,16 @@ package snow.packet;
 
 import lombok.Getter;
 import lombok.Setter;
-import snow.session.Session;
+import snow.session.Connection;
 
 public abstract class Packet {
 	
 	private @Getter @Setter PacketType type;
-	private @Getter @Setter Session session;
+	private @Getter @Setter Connection connection;
 	private @Getter @Setter Object[] data;
 	
-	public Packet(PacketType type, Object[] data) {
-		setType(type);
+	public Packet(Connection connection, Object[] data) {
+		setConnection(connection);
 		setData(data);
 	}
 	

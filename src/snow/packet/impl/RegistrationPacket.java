@@ -1,14 +1,14 @@
 package snow.packet.impl;
 
 import snow.packet.Packet;
-import snow.packet.PacketType;
+import snow.session.Connection;
 import snow.session.User;
 import sql.MySQL;
 
 public class RegistrationPacket extends Packet {
 	
-	public RegistrationPacket(PacketType type, Object[] data) {
-		super(type, data);
+	public RegistrationPacket(Connection connection, Object[] data) {
+		super(connection, data);
 	}
 
 	@Override

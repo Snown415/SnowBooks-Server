@@ -24,12 +24,10 @@ public class PacketHandler {
 	}
 	
 	public Object[] processIncomingPacket(PacketType type, Object[] data) {
-		Socket socket = connection.getSocket();
 		Object[] response = null;
 		
 		switch (type) {
 		case LOGIN:
-			
 			if (hasActiveSession()) {
 				response = new Object[] { type.getPacketId(), false, "Too many active sessions." };
 				break;
@@ -43,7 +41,7 @@ public class PacketHandler {
 			break;
 			
 		case LOGOUT:
-			response = new LogoutPacket(connection, data, socket).process();
+			response = new LogoutPacket(connection, data).process();
 			break;
 			
 		default:

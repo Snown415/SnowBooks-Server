@@ -1,6 +1,7 @@
 package snow.packet.impl;
 
 import snow.packet.Packet;
+import snow.packet.PacketType;
 import snow.session.Connection;
 import snow.session.User;
 import sql.MySQL;
@@ -8,7 +9,7 @@ import sql.MySQL;
 public class RegistrationPacket extends Packet {
 	
 	public RegistrationPacket(Connection connection, Object[] data) {
-		super(connection, data);
+		super(PacketType.REGISTER, connection, data);
 	}
 
 	@Override

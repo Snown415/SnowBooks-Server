@@ -21,6 +21,7 @@ public class Worker extends Thread {
 
 	public Worker(Socket socket) {
 		this.socket = socket;
+		start();
 	}
 
 	public Object[] response;

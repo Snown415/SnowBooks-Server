@@ -1,20 +1,14 @@
 package snow.packet.impl;
 
-import java.net.Socket;
-
-import lombok.Getter;
-import lombok.Setter;
 import snow.packet.Packet;
+import snow.packet.PacketType;
 import snow.session.Connection;
 
 public class LogoutPacket extends Packet {
 	
-	public LogoutPacket(Connection connection, Object[] data, Socket socket) {
-		super(connection, data);
-		setSocket(socket);
+	public LogoutPacket(Connection connection, Object[] data) {
+		super(PacketType.LOGOUT, connection, data);
 	}
-	
-	public @Getter @Setter Socket socket;
 
 	@Override
 	public Object[] process() {
@@ -25,9 +19,14 @@ public class LogoutPacket extends Packet {
 			return response;
 		}
 		
-		// String ip = socket.getInetAddress().getHostAddress();
+		String ip = socket.getInetAddress().getHostAddress();
 		
+		if (Connection.getConnections().containsKey(ip)) {
+			Connection.getConnections().remove(ip);
+			response = new Object[] { type.getPacketId(), true };
+		}
 		
+		System.out.println("Logging out " + response[1]);
 		return response;
 	}
 

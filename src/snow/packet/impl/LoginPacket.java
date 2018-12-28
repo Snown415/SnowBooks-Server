@@ -14,8 +14,7 @@ import sql.MySQL;
 public class LoginPacket extends Packet {
 
 	public LoginPacket(Connection connection, Object[] data) {
-		super(connection, data);
-		setType(PacketType.LOGIN);
+		super(PacketType.LOGIN, connection, data);
 	}
 
 	@Override
@@ -36,6 +35,8 @@ public class LoginPacket extends Packet {
 			password = MySQL.getPassword(username);
 
 			if (attempt.equals(password)) {
+				String ip = socket.getInetAddress().getHostAddress();
+				Connection.getConnections().put(ip, connection);
 				object = new Object[] { getPacketId(), true, username };
 			} else {
 				object = new Object[] { getPacketId(), false, "Invalid credentials. Please try again." };

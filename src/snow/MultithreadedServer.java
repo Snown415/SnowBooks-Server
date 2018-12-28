@@ -30,13 +30,22 @@ public class MultithreadedServer implements Runnable {
 			
 			try {
 				client = socket.accept();
+				String ip = client.getInetAddress().getHostAddress();
+
+				if (Connection.getConnections().containsKey(ip)) {
+					Connection connection = Connection.getConnections().get(ip);
+					connection.setSocket(client);
+					connection.getWorker().socket = client;
+					System.out.println("Processing data for " + ip);
+					return;
+				}
 				
 				Worker worker = new Worker(client);				
-				new Connection(client, worker); // Instanced and stored in a map
+				new Connection(client, worker);
 				
 			} catch (IOException e) {
 				e.printStackTrace();
-				System.err.println("Couldn't connect to the incoming connection...");
+				System.err.println("Couldn't connect to the incoming request...");
 			}
 		}
 		

@@ -30,7 +30,6 @@ public class Connection {
 		
 		String ip = socket.getInetAddress().getHostAddress();
 		System.out.println("A connection to " + ip + " has been made.");
-		connections.put(ip, this);
 	}
 	
 }

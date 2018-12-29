@@ -40,14 +40,7 @@ public class Worker extends Thread {
 			Object[] data = (Object[]) input.readObject();
 			
 			if (Server.DEBUG) {
-				StringBuilder sb = new StringBuilder();
-				
-				for (Object o : data) {
-					sb.append(o.toString() + ", ");
-				}
-				
-				int size = sb.toString().length();
-				System.out.println("IP: " + ip + "Data: " + sb.toString().substring(0, size - 2));
+				debugPacket(data);
 			}
 			
 			if (!(data[0] instanceof Integer)) {
@@ -84,5 +77,22 @@ public class Worker extends Thread {
 		} catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();
 		}
+	}
+
+	private void debugPacket(Object[] data) {
+		StringBuilder sb = new StringBuilder();
+		
+		for (Object o : data) {
+			sb.append(o.toString() + ", ");
+		}
+		
+		String value = sb.toString();
+		int size = value.length();
+		int commaIndex = value.indexOf(",");
+		int typeId = Integer.parseInt(value.substring(0, commaIndex));
+		
+		PacketType type = PacketType.getPacketTypes().get(typeId);
+		System.out.println("IP: " + ip + " Data: " + type.name() + " " +  sb.toString().substring(3, size - 2)); 
+		
 	}
 }

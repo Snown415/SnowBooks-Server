@@ -26,4 +26,10 @@ public class LogoutPacket extends Packet {
 		return response;
 	}
 
+	@Override
+	public void debug() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

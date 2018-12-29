@@ -27,5 +27,11 @@ public class RegistrationPacket extends Packet {
 		
 		return object;
 	}
+
+	@Override
+	public void debug() {
+		// TODO Auto-generated method stub
+		
+	}
 	
 }

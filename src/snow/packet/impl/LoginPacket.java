@@ -63,4 +63,10 @@ public class LoginPacket extends Packet {
 		return null;
 	}
 
+	@Override
+	public void debug() {
+		System.out.println("Expecting String: Username, String: Password");
+		// debugPacket(); Don't debug login; sensitive information shouldn't be debugged
+	}
+
 }

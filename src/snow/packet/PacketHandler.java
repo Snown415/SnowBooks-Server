@@ -1,47 +1,29 @@
 package snow.packet;
 
-import java.net.Socket;
-
-import lombok.Getter;
-import lombok.Setter;
 import snow.packet.impl.LoginPacket;
 import snow.packet.impl.LogoutPacket;
 import snow.packet.impl.RegistrationPacket;
-import snow.session.Connection;
 
 public class PacketHandler {
-	
-	private @Getter @Setter Connection connection;
-	private @Getter @Setter Socket socket;
-	
-	public PacketHandler(Connection connection) {
-		setConnection(connection);
-		setSocket(connection.getSocket());
-	}
 
 	public void encode() {
 		
 	}
 	
-	public Object[] processIncomingPacket(PacketType type, Object[] data) {
-		Object[] response = null;
+	public static Object[] processIncomingPacket(String ip, PacketType type, Object[] data) {
+		Object[] response = null;		
 		
 		switch (type) {
-		case LOGIN:
-			if (hasActiveSession()) {
-				response = new Object[] { type.getPacketId(), false, "Too many active sessions." };
-				break;
-			}
-			
-			response = new LoginPacket(connection, data).process();
+		case LOGIN:			
+			response = new LoginPacket(data).process();
 			break;
 			
 		case REGISTER:
-			response = new RegistrationPacket(connection, data).process();
+			response = new RegistrationPacket(data).process();
 			break;
 			
 		case LOGOUT:
-			response = new LogoutPacket(connection, data).process();
+			response = new LogoutPacket(data).process();
 			break;
 			
 		default:
@@ -50,11 +32,5 @@ public class PacketHandler {
 		}
 		
 		return response;
-	}
-	
-	private boolean hasActiveSession() {
-		String ip = socket.getInetAddress().getHostAddress();
-		return Connection.getConnections().containsKey(ip);
-		
 	}
 }

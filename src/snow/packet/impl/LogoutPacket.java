@@ -2,12 +2,11 @@ package snow.packet.impl;
 
 import snow.packet.Packet;
 import snow.packet.PacketType;
-import snow.session.Connection;
 
 public class LogoutPacket extends Packet {
 	
-	public LogoutPacket(Connection connection, Object[] data) {
-		super(PacketType.LOGOUT, connection, data);
+	public LogoutPacket(Object[] data) {
+		super(PacketType.LOGOUT, data);
 	}
 
 	@Override
@@ -21,10 +20,7 @@ public class LogoutPacket extends Packet {
 		
 		String ip = socket.getInetAddress().getHostAddress();
 		
-		if (Connection.getConnections().containsKey(ip)) {
-			Connection.getConnections().remove(ip);
-			response = new Object[] { type.getPacketId(), true };
-		}
+		// response = new Object[] { type.getPacketId(), true }; // Logout
 		
 		System.out.println("Logging out " + response[1]);
 		return response;

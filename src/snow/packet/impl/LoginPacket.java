@@ -8,17 +8,16 @@ import javax.crypto.spec.SecretKeySpec;
 
 import snow.packet.Packet;
 import snow.packet.PacketType;
-import snow.session.Connection;
 import sql.MySQL;
 
 public class LoginPacket extends Packet {
 
-	public LoginPacket(Connection connection, Object[] data) {
-		super(PacketType.LOGIN, connection, data);
+	public LoginPacket(Object[] data) {
+		super(PacketType.LOGIN, data);
 	}
 
 	@Override
-	public Object[] process() {
+	public Object[] process() { // TODO Use serialization instead of SQL
 		Object[] object;
 
 		String username = (String) getData()[1];
@@ -35,8 +34,7 @@ public class LoginPacket extends Packet {
 			password = MySQL.getPassword(username);
 
 			if (attempt.equals(password)) {
-				String ip = socket.getInetAddress().getHostAddress();
-				Connection.getConnections().put(ip, connection);
+				// TODO Initiate user, unless user is already active
 				object = new Object[] { getPacketId(), true, username };
 			} else {
 				object = new Object[] { getPacketId(), false, "Invalid credentials. Please try again." };

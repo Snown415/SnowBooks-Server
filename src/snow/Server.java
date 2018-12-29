@@ -13,7 +13,8 @@ import sql.MySQL;
 
 public class Server {
 	
-	private static final @Getter Integer PORT = 43595;
+	private static final Integer PORT = 43595;
+	public static final Boolean DEBUG = true;
 	
 	/**
 	 * A collection of active users, 

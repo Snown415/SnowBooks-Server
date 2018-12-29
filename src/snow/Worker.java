@@ -23,6 +23,7 @@ public class Worker extends Thread {
 	public Worker(Socket socket) {
 		this.socket = socket;
 		setIp(socket.getInetAddress().getHostAddress());
+		System.out.println("Processing request from " + ip + "...");
 	}
 
 	public Object[] response;
@@ -37,6 +38,17 @@ public class Worker extends Thread {
 			ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream());
 
 			Object[] data = (Object[]) input.readObject();
+			
+			if (Server.DEBUG) {
+				StringBuilder sb = new StringBuilder();
+				
+				for (Object o : data) {
+					sb.append(o.toString() + ", ");
+				}
+				
+				int size = sb.toString().length();
+				System.out.println("IP: " + ip + "Data: " + sb.toString().substring(0, size - 2));
+			}
 			
 			if (!(data[0] instanceof Integer)) {
 				System.err.println("Invalid Packet!");

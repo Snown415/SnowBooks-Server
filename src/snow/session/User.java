@@ -11,6 +11,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 import lombok.Getter;
 import lombok.Setter;
+import snow.Serialize;
 
 public class User implements Serializable {
 	
@@ -44,6 +45,7 @@ public class User implements Serializable {
 		
 		String encryption = encryptPassword(password);
 		setPassword(encryption);
+		Serialize.saveUser(this);
 	}
 	
 	public String encryptPassword(String password) {

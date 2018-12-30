@@ -23,7 +23,7 @@ public class PacketHandler {
 			break;
 			
 		case LOGOUT:
-			response = new LogoutPacket(data).process();
+			response = new LogoutPacket(ip, data).process();
 			break;
 			
 		default:

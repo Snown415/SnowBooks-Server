@@ -6,9 +6,11 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import snow.Serialize;
+import snow.Server;
 import snow.packet.Packet;
 import snow.packet.PacketType;
-import sql.MySQL;
+import snow.session.User;
 
 public class LoginPacket extends Packet {
 
@@ -17,31 +19,44 @@ public class LoginPacket extends Packet {
 	}
 
 	@Override
-	public Object[] process() { // TODO Use serialization instead of SQL
-		Object[] object;
-
+	public Object[] process() {
 		String username = (String) getData()[1];
 		String password = (String) getData()[2];
-
-		if (!MySQL.foundUser(username)) {
-			object = new Object[] { getPacketId(), false,
-					"There is no user '" + username + "'; Please click 'Register' instead." };
+		
+		User user;
+		
+		if (Server.getActiveUsers().containsKey(username)) {
+			return new Object[] { type.getPacketId(), false, "The user '" + username + "' is already active." };
 		} else {
-			String[] keys = MySQL.getSecurityKeys(username);
-			String key = keys[0];
-			String vector = keys[1];
-			String attempt = encryptPassword(password, key, vector);
-			password = MySQL.getPassword(username);
-
-			if (attempt.equals(password)) {
-				// TODO Initiate user, unless user is already active
-				object = new Object[] { getPacketId(), true, username };
-			} else {
-				object = new Object[] { getPacketId(), false, "Invalid credentials. Please try again." };
+			
+			user = Serialize.loadUser(username);
+			
+			if (user == null) {
+				user = createUser(username, password);
+				return new Object[] { type.getPacketId(), true, username };
 			}
+			
+			String attempt = encryptPassword(password, user.getSecurityKey(), user.getVectorKey());
+			
+			if (attempt.equals(user.getPassword())) {
+				addUser(user);
+				return new Object[] { type.getPacketId(), true, username };
+			} else {
+				return new Object[] { type.getPacketId(), false, "Invalid credentials, please try again." };
+			}
+			
 		}
+	}
+	
+	private void addUser(User user) {
+		Server.getActiveUsers().put(user.getUsername(), user);
+		Server.getActiveSessions().put(socket.getInetAddress().getHostAddress(), user);
+	}
 
-		return object;
+	private User createUser(String username, String password) {
+		User user = new User(username, password);
+		addUser(user);
+		return user;
 	}
 
 	private String encryptPassword(String password, String k, String v) {

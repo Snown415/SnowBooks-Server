@@ -5,8 +5,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
+import lombok.Setter;
+import snow.packet.PacketHandler;
 import snow.packet.PacketType;
-import snow.session.Connection;
 
 /**
  * Worker; Handles incoming requests in a multi-threaded fashion.
@@ -17,10 +18,12 @@ import snow.session.Connection;
 public class Worker extends Thread {
 
 	protected Socket socket = null;
-	public Connection connection;
+	private @Setter String ip;
 
 	public Worker(Socket socket) {
 		this.socket = socket;
+		setIp(socket.getInetAddress().getHostAddress());
+		System.out.println("Processing request from " + ip + "...");
 	}
 
 	public Object[] response;
@@ -58,7 +61,7 @@ public class Worker extends Thread {
 			}
 
 			PacketType type = PacketType.getPacketTypes().get(packetId);		
-			response = connection.getPacketHandler().processIncomingPacket(type, data);
+			response = PacketHandler.processIncomingPacket(ip, type, data);
 			
 			if (response != null) {
 				output.writeObject(response);

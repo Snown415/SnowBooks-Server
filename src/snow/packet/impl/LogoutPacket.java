@@ -1,34 +1,36 @@
 package snow.packet.impl;
 
-import java.net.Socket;
-
-import lombok.Getter;
-import lombok.Setter;
+import snow.Server;
 import snow.packet.Packet;
-import snow.session.Connection;
+import snow.packet.PacketType;
+import snow.session.User;
 
 public class LogoutPacket extends Packet {
 	
-	public LogoutPacket(Connection connection, Object[] data, Socket socket) {
-		super(connection, data);
-		setSocket(socket);
-	}
+	private String ip;
 	
-	public @Getter @Setter Socket socket;
+	public LogoutPacket(String ip, Object[] data) {
+		super(PacketType.LOGOUT, data);
+		this.ip = ip;
+	}
 
 	@Override
 	public Object[] process() {
-		Object[] response = { getType().getPacketId(), false };
+		Object[] response = { type.getPacketId(), false };
 		
-		if (socket == null) {
-			System.err.println("There is no valid socket, unable to logout user.");
-			return response;
+		if (Server.getActiveSessions().containsKey(ip)) {
+			response = new Object[] { type.getPacketId(), true };
+			User user = Server.getActiveSessions().get(ip);
+			user.deactivateUser();
 		}
 		
-		// String ip = socket.getInetAddress().getHostAddress();
-		
-		
 		return response;
+	}
+
+	@Override
+	public void debug() {
+		System.out.println("Logging out.");
+		
 	}
 
 }

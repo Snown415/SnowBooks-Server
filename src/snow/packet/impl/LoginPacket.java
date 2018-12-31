@@ -6,44 +6,49 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import snow.Serialize;
+import snow.Server;
 import snow.packet.Packet;
 import snow.packet.PacketType;
-import snow.session.Connection;
-import sql.MySQL;
+import snow.session.User;
 
 public class LoginPacket extends Packet {
+	
+	private String ip;
 
-	public LoginPacket(Connection connection, Object[] data) {
-		super(connection, data);
-		setType(PacketType.LOGIN);
+	public LoginPacket(String ip, Object[] data) {
+		super(PacketType.LOGIN, data);
+		this.ip = ip;
 	}
 
 	@Override
 	public Object[] process() {
-		Object[] object;
-
 		String username = (String) getData()[1];
 		String password = (String) getData()[2];
-
-		if (!MySQL.foundUser(username)) {
-			object = new Object[] { getPacketId(), false,
-					"There is no user '" + username + "'; Please click 'Register' instead." };
+		
+		User user;
+		
+		if (Server.getActiveUsers().containsKey(username)) {
+			return new Object[] { type.getPacketId(), false, "The user '" + username + "' is already active." };
 		} else {
-			String[] keys = MySQL.getSecurityKeys(username);
-			String key = keys[0];
-			String vector = keys[1];
-			String attempt = encryptPassword(password, key, vector);
-			password = MySQL.getPassword(username);
-
-			if (attempt.equals(password)) {
-				object = new Object[] { getPacketId(), true, username };
+			
+			user = Serialize.loadUser(username);
+			
+			if (user == null) {
+				return new Object[] { type.getPacketId(), false, "'" + username + "' isn't in use, please click \"Register\" instead." };
+			}
+			
+			String attempt = encryptPassword(password, user.getSecurityKey(), user.getVectorKey());
+			
+			if (attempt.equals(user.getPassword())) {
+				user.setCurrentIP(ip);
+				user.activateUser();
+				return new Object[] { type.getPacketId(), true, username };
 			} else {
-				object = new Object[] { getPacketId(), false, "Invalid credentials. Please try again." };
+				return new Object[] { type.getPacketId(), false, "Invalid credentials, please try again." };
 			}
 		}
-
-		return object;
-	}
+	}	
 
 	private String encryptPassword(String password, String k, String v) {
 		byte[] vector = v.getBytes();
@@ -62,6 +67,12 @@ public class LoginPacket extends Packet {
 			ex.printStackTrace();
 		}
 		return null;
+	}
+
+	@Override
+	public void debug() {
+		System.out.println("Expecting String: Username, String: Password");
+		// debugPacket(); Don't debug login; sensitive information shouldn't be debugged
 	}
 
 }

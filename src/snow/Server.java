@@ -9,12 +9,11 @@ import lombok.Getter;
 import lombok.Setter;
 import snow.packet.PacketType;
 import snow.session.User;
-import sql.MySQL;
 
 public class Server {
 	
 	private static final Integer PORT = 43595;
-	public static final Boolean DEBUG = true;
+	public static final Boolean DEBUG = false;
 	
 	/**
 	 * A collection of active users, 
@@ -34,7 +33,7 @@ public class Server {
 	
 	public static void main(String[] args) throws IOException {
 		PacketType.init();
-		MySQL.init();
+		// MySQL.init();
 		
 		System.out.println("Starting Server...");
 		openSocket();

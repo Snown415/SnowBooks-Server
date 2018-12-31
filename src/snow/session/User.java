@@ -12,6 +12,7 @@ import javax.crypto.spec.SecretKeySpec;
 import lombok.Getter;
 import lombok.Setter;
 import snow.Serialize;
+import snow.Server;
 
 public class User implements Serializable {
 	
@@ -23,13 +24,13 @@ public class User implements Serializable {
 	private @Getter @Setter byte[] key;
 	private @Getter @Setter byte[] vector;
 	
+	private transient @Getter @Setter String currentIP;
 	private @Getter @Setter String username;
 	private @Getter @Setter String password; // Encrypted
 	
-	private @Getter @Setter boolean isGuest = true; // Guest account; used before registration / login
-	
-	public User(String username, String password) {
+	public User(String username, String password, String ip) {
 		setUsername(username);
+		setCurrentIP(ip);
 		
 		setSecurityKey(generateSecurityCode());
 		setVectorKey(generateSecurityCode());
@@ -45,6 +46,21 @@ public class User implements Serializable {
 		
 		String encryption = encryptPassword(password);
 		setPassword(encryption);
+		activateUser();
+		save();
+	}
+	
+	public void activateUser() {
+		Server.getActiveUsers().put(getUsername(), this);
+		Server.getActiveSessions().put(currentIP, this);
+	}
+	
+	public void deactivateUser() {
+		Server.getActiveUsers().remove(getUsername());
+		Server.getActiveSessions().remove(currentIP);
+	}
+	
+	public void save() {
 		Serialize.saveUser(this);
 	}
 	

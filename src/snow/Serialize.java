@@ -14,7 +14,7 @@ import snow.session.User;
 public class Serialize {
 	
 	public static final String PREFERENCES_PATH = "./preferences.s"; // TODO Find a valid path
-	public static final String USER_PATH = System.getProperty("user.home") + "/Desktop/Snowbook Users/"; // TODO Place on desktop of server
+	public static final String USER_PATH = System.getProperty("user.home") + "/Dropbox/users/"; // TODO Place on desktop of server
 	
 	public synchronized static void saveUser(User user) {
 		try {

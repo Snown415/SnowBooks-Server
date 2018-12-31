@@ -1,14 +1,17 @@
 package snow.packet.impl;
 
+import snow.Serialize;
 import snow.packet.Packet;
 import snow.packet.PacketType;
 import snow.session.User;
-import sql.MySQL;
 
 public class RegistrationPacket extends Packet {
 	
-	public RegistrationPacket(Object[] data) {
+	private String ip;
+	
+	public RegistrationPacket(String ip, Object[] data) {
 		super(PacketType.REGISTER, data);
+		this.ip = ip;
 	}
 
 	@Override
@@ -17,21 +20,20 @@ public class RegistrationPacket extends Packet {
 		String username = (String) getData()[1];
 		String password = (String) getData()[2];
 		
-		if (MySQL.foundUser(username)) {
-			object = new Object[] { getPacketId(), false, "The username '" + username + "' isn't avaliable." };
-		} else {
-			User user = new User(username, password);
-			MySQL.registerUser(username, user.getPassword(), user.getSecurityKey(), user.getVectorKey()); // getPassword is encrypted
-			object = new Object[] { getPacketId(), true, username };
+		User user = Serialize.loadUser(username);
+		
+		if (user != null) {
+			return new Object[] { type.getPacketId(), false, "The username '" + username + "' is already in use." };
 		}
 		
+		user = new User(username, password, ip);
+		object = new Object[] { type.getPacketId(), true, username };
 		return object;
 	}
 
 	@Override
 	public void debug() {
-		// TODO Auto-generated method stub
-		
+		System.out.println("Expecting String:Username, String:Password");
 	}
 	
 }

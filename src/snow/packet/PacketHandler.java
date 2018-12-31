@@ -15,11 +15,11 @@ public class PacketHandler {
 		
 		switch (type) {
 		case LOGIN:			
-			response = new LoginPacket(data).process();
+			response = new LoginPacket(ip, data).process();
 			break;
 			
 		case REGISTER:
-			response = new RegistrationPacket(data).process();
+			response = new RegistrationPacket(ip, data).process();
 			break;
 			
 		case LOGOUT:

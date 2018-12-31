@@ -21,8 +21,7 @@ public class LogoutPacket extends Packet {
 		if (Server.getActiveSessions().containsKey(ip)) {
 			response = new Object[] { type.getPacketId(), true };
 			User user = Server.getActiveSessions().get(ip);
-			Server.getActiveUsers().remove(user.getUsername());
-			Server.getActiveSessions().remove(ip);
+			user.deactivateUser();
 		}
 		
 		return response;

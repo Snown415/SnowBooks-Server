@@ -13,9 +13,12 @@ import snow.packet.PacketType;
 import snow.session.User;
 
 public class LoginPacket extends Packet {
+	
+	private String ip;
 
-	public LoginPacket(Object[] data) {
+	public LoginPacket(String ip, Object[] data) {
 		super(PacketType.LOGIN, data);
+		this.ip = ip;
 	}
 
 	@Override
@@ -32,32 +35,20 @@ public class LoginPacket extends Packet {
 			user = Serialize.loadUser(username);
 			
 			if (user == null) {
-				user = createUser(username, password);
-				return new Object[] { type.getPacketId(), true, username };
+				return new Object[] { type.getPacketId(), false, "'" + username + "' isn't in use, please click \"Register\" instead." };
 			}
 			
 			String attempt = encryptPassword(password, user.getSecurityKey(), user.getVectorKey());
 			
 			if (attempt.equals(user.getPassword())) {
-				addUser(user);
+				user.setCurrentIP(ip);
+				user.activateUser();
 				return new Object[] { type.getPacketId(), true, username };
 			} else {
 				return new Object[] { type.getPacketId(), false, "Invalid credentials, please try again." };
 			}
-			
 		}
-	}
-	
-	private void addUser(User user) {
-		Server.getActiveUsers().put(user.getUsername(), user);
-		Server.getActiveSessions().put(socket.getInetAddress().getHostAddress(), user);
-	}
-
-	private User createUser(String username, String password) {
-		User user = new User(username, password);
-		addUser(user);
-		return user;
-	}
+	}	
 
 	private String encryptPassword(String password, String k, String v) {
 		byte[] vector = v.getBytes();

@@ -1,17 +1,15 @@
 package snow.packet;
 
+import snow.Server;
 import snow.packet.impl.LoginPacket;
 import snow.packet.impl.LogoutPacket;
 import snow.packet.impl.RegistrationPacket;
+import snow.session.User;
 
 public class PacketHandler {
-
-	public void encode() {
-		
-	}
 	
 	public static Object[] processIncomingPacket(String ip, PacketType type, Object[] data) {
-		Object[] response = null;		
+		Object[] response = null;
 		
 		switch (type) {
 		case LOGIN:			
@@ -29,6 +27,11 @@ public class PacketHandler {
 		default:
 			response = new Object[] { -1, "Invalid Packet" };
 			break;
+		}
+		
+		if (Server.getActiveSessions().containsKey(ip)) {
+			User user = Server.getActiveSessions().get(ip);
+			user.setLastPacket(System.currentTimeMillis());
 		}
 		
 		return response;

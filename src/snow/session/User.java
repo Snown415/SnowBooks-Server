@@ -28,6 +28,9 @@ public class User implements Serializable {
 	private @Getter @Setter String username;
 	private @Getter @Setter String password; // Encrypted
 	
+	private @Getter @Setter long lastPacket;
+	private @Getter @Setter boolean timedOut;
+	
 	public User(String username, String password, String ip) {
 		setUsername(username);
 		setCurrentIP(ip);

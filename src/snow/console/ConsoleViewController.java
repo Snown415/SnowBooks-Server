@@ -12,7 +12,7 @@ import javafx.scene.input.KeyEvent;
 
 public class ConsoleViewController implements Initializable {
 	
-	private @FXML TextArea console;
+	private @FXML TextArea console, output;
 	
 	private Console consoleController;
 	
@@ -20,13 +20,13 @@ public class ConsoleViewController implements Initializable {
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
+		console.requestFocus();
 		consoleController = new Console();
 		resetConsole();
 	}
 	
 	private void resetConsole( ) {
-		console.setText(initialValue);
-		resetCaret();
+		output.setText(initialValue);
 	}
 	
 	public void onInput(Event e) {
@@ -38,26 +38,19 @@ public class ConsoleViewController implements Initializable {
 			String command = findCommand();
 			String response = consoleController.handleCommand(command);
 			append(response);
-		}		
+			e.consume();
+		}
 	}
 	
 	private String findCommand() {
 		String value = console.getText();
-		int startIndex = value.lastIndexOf('-');
-		
+		int startIndex = value.lastIndexOf('-');	
 		String command = value.substring(startIndex, value.length());
-		System.out.println(command);
 		return command;
 	}
 
 	public void append(String value) {
-		console.setText(console.getText() + "\n" + value + " ");
-		resetCaret();
+		output.setText(output.getText() + "\n" + value + " ");
+		console.setText("");
 	}
-	
-	public void resetCaret() {
-		console.selectPositionCaret(console.getText().length());
-		console.deselect();
-	}
-
 }

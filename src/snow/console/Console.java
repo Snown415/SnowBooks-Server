@@ -21,14 +21,14 @@ public class Console {
 
 			for (int i = 0; i < args.length; i++) {
 				Object o = args[i];
-				sb.append(o.getClass().getCanonicalName());
+				sb.append(o.getClass().getSimpleName());
 				
 				if ((i != args.length - 1)) {
 					sb.append(", ");
 				}
 			}
 
-			return "You provided incorrect arguments for '" + key + "'; Expecting: " + sb.toString();
+			return "You provided incorrect arguments for '" + commandKey + "'; Expecting: " + sb.toString();
 		}
 		
 		return "Command Succesfully executed.";
@@ -37,20 +37,26 @@ public class Console {
 	private boolean validRequest() {
 		
 		String[] args = input.split(" ");
+		Object[] commandArgs = currentCommand.getArgs();
 		
 		if (currentCommand.getArgs().length == 0) {
 			return true;
 		}
 		
 		for (int i = 1; i < args.length; i++) {
-			Object expectation = currentCommand.getArgs()[i - 1];
+			int index = i - 1;
 			
-			if (expectation instanceof String) {
-				// TODO
+			if (commandArgs.length <= index) {
+				return false;
+			}
+			
+			Object expectation = commandArgs[index];
+			
+			if (args[i].getClass() != expectation.getClass()) {
+				return false;
 			}
 		}
-		
-		return false;
+		return true;
 	}
 
 }

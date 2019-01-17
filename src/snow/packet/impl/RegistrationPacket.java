@@ -7,11 +7,8 @@ import snow.session.User;
 
 public class RegistrationPacket extends Packet {
 	
-	private String ip;
-	
 	public RegistrationPacket(String ip, Object[] data) {
-		super(PacketType.REGISTER, data);
-		this.ip = ip;
+		super(PacketType.REGISTER, ip, data);
 	}
 
 	@Override

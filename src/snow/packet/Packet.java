@@ -3,15 +3,18 @@ package snow.packet;
 import lombok.Getter;
 import lombok.Setter;
 import snow.Server;
+import snow.session.User;
 
 public abstract class Packet {
 	
 	protected @Getter @Setter PacketType type;
 	protected @Getter @Setter Object[] data;
+	protected @Getter @Setter String ip;
 	
-	public Packet(PacketType type, Object[] data) {
+	public Packet(PacketType type, String ip, Object[] data) {
 		setType(type);
 		setData(data);
+		setIp(ip);
 		
 		if (Server.DEBUG) 
 			debug();
@@ -23,6 +26,14 @@ public abstract class Packet {
 	
 	public abstract Object[] process();
 	public abstract void debug();
+	
+	public User getUser() {
+		if (!Server.getActiveSessions().containsKey(ip)) {
+			return null;
+		}
+
+		return Server.getActiveSessions().get(ip);
+	}
 
 	public void debugPacket() {
 		StringBuilder sb = new StringBuilder();

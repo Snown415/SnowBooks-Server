@@ -7,11 +7,8 @@ import snow.session.User;
 
 public class LogoutPacket extends Packet {
 	
-	private String ip;
-	
 	public LogoutPacket(String ip, Object[] data) {
-		super(PacketType.LOGOUT, data);
-		this.ip = ip;
+		super(PacketType.LOGOUT, ip, data);
 	}
 
 	@Override

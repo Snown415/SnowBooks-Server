@@ -4,6 +4,7 @@ import snow.Server;
 import snow.packet.impl.LoginPacket;
 import snow.packet.impl.LogoutPacket;
 import snow.packet.impl.RegistrationPacket;
+import snow.packet.impl.TransactionPacket;
 import snow.session.User;
 
 public class PacketHandler {
@@ -22,6 +23,10 @@ public class PacketHandler {
 			
 		case LOGOUT:
 			response = new LogoutPacket(ip, data).process();
+			break;
+			
+		case TRANSACTION:
+			response = new TransactionPacket(ip, data).process();
 			break;
 			
 		default:

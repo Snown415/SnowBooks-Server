@@ -3,6 +3,7 @@ package snow.session;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.util.Base64;
+import java.util.LinkedHashMap;
 import java.util.Random;
 
 import javax.crypto.Cipher;
@@ -13,6 +14,7 @@ import lombok.Getter;
 import lombok.Setter;
 import snow.Serialize;
 import snow.Server;
+import snow.transaction.Transaction;
 
 public class User implements Serializable {
 	
@@ -31,9 +33,12 @@ public class User implements Serializable {
 	private @Getter @Setter long lastPacket;
 	private @Getter @Setter boolean timedOut;
 	
+	private @Getter LinkedHashMap<String, Transaction> transactions;
+	
 	public User(String username, String password, String ip) {
 		setUsername(username);
 		setCurrentIP(ip);
+		transactions = new LinkedHashMap<>();
 		
 		setSecurityKey(generateSecurityCode());
 		setVectorKey(generateSecurityCode());
@@ -63,7 +68,13 @@ public class User implements Serializable {
 		Server.getActiveSessions().remove(currentIP);
 	}
 	
+	public void validateIntegrity() {
+		if (transactions == null)
+			transactions = new LinkedHashMap<>();
+	}
+	
 	public void save() {
+		validateIntegrity();
 		Serialize.saveUser(this);
 	}
 	

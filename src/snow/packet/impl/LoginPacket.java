@@ -13,12 +13,9 @@ import snow.packet.PacketType;
 import snow.session.User;
 
 public class LoginPacket extends Packet {
-	
-	private String ip;
 
 	public LoginPacket(String ip, Object[] data) {
-		super(PacketType.LOGIN, data);
-		this.ip = ip;
+		super(PacketType.LOGIN, ip, data);
 	}
 
 	@Override
@@ -43,6 +40,7 @@ public class LoginPacket extends Packet {
 			if (attempt.equals(user.getPassword())) {
 				user.setCurrentIP(ip);
 				user.activateUser();
+				user.validateIntegrity();
 				return new Object[] { type.getPacketId(), true, username };
 			} else {
 				return new Object[] { type.getPacketId(), false, "Invalid credentials, please try again." };

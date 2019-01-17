@@ -13,7 +13,7 @@ import snow.session.User;
 public class Server {
 
 	private static final Integer PORT = 43595;
-	public static final Boolean DEBUG = false;
+	public static final Boolean DEBUG = true;
 
 	/**
 	 * A collection of active users, stored using the username as a key to obtain a

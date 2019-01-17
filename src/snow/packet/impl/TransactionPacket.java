@@ -44,8 +44,6 @@ public class TransactionPacket extends Packet {
 		if (user == null) {
 			return new Object[] { type.getPacketId(), ordinal, false, "Session not found." };
 		}
-		
-		System.out.println("Sending packet. " + user.getTransactions().values().size());
 
 		return new Object[] { type.getPacketId(), ordinal, true, user.getTransactions().values().toArray() };
 	}
@@ -60,7 +58,11 @@ public class TransactionPacket extends Packet {
 
 		String id = (String) data[2];
 		
-		if (id == null) {
+		if (id == null || id.equals("null")) {
+			if (user.getTransactions().containsKey("")) {
+				user.getTransactions().remove("");
+				return new Object[] { type.getPacketId(), ordinal, true, "" };
+			}
 			return new Object[] { type.getPacketId(), ordinal, false };
 		}
 		
@@ -71,6 +73,7 @@ public class TransactionPacket extends Packet {
 
 		if (user.getTransactions().containsKey(id)) {
 			user.getTransactions().remove(id);
+			user.save();
 			return new Object[] { type.getPacketId(), ordinal, true, id };
 		}
 
@@ -87,10 +90,9 @@ public class TransactionPacket extends Packet {
 		Transaction t = new Transaction(data);
 		
 		if (user.getTransactions().containsKey(t.getName())) {
+			
 			return new Object[] { type.getPacketId(), ordinal, false, t.getName() + " already exists." };
 		}
-		
-		System.out.println("Adding Transaction " + t.getName());
 		
 		user.getTransactions().put(t.getName(), t);
 		user.save();

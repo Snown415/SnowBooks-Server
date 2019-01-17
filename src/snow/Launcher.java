@@ -4,12 +4,14 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import lombok.Getter;
 import snow.console.ConsoleCommand;
 import snow.console.ConsoleViewController;
 
 public class Launcher extends Application {
 	
 	private static Server server;
+	private static @Getter ConsoleViewController controller;
 
 	public static void main(String[] args) {
 		ConsoleCommand.init();
@@ -28,6 +30,8 @@ public class Launcher extends Application {
 		stage.setTitle("Snowbooks Server");
 		stage.setResizable(false);
 		stage.show();
+		
+		controller = loader.getController();
 	}
 	
 	public void finish() {

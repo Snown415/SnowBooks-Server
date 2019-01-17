@@ -8,7 +8,8 @@ import lombok.Setter;
 public enum ConsoleCommand {
 	HELP("-h"),
 	LIST_ACTIVE_USERS("-lau"),
-	FIND_USER("-fu", new String());
+	FIND_USER("-fu", new String()),
+	SPOOF_TRANSACTIONS("-stf", new String());
 	
 	private @Getter @Setter String key;
 	private @Getter @Setter Object[] args;

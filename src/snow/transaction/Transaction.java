@@ -15,7 +15,10 @@ public class Transaction implements Serializable {
 	
 	private @Getter @Setter String type, currencyType, budget, name, recipient, email, phone;
 	private @Getter @Setter LocalDate date;
-	private @Getter @Setter double amount, savingPercent, savingAmount;
+	private @Getter @Setter double amount, savingPercent, savingAmount, profit;
+	
+	private @Getter @Setter String month;
+	private @Getter @Setter int day;
 
 	public Transaction(Object[] data) {
 		
@@ -34,5 +37,8 @@ public class Transaction implements Serializable {
 		setAmount((double) data[10]);
 		setSavingPercent((double) data[11]);
 		setSavingAmount((double) data[12]);
+		setProfit(getAmount() - getSavingAmount());
+		setMonth(((LocalDate) date).getMonth().toString());
+		setDay(((LocalDate) date).getDayOfMonth());
 	}
 }

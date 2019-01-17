@@ -13,7 +13,7 @@ public class Transaction implements Serializable {
 	private String[] valueKeys = { "type", "currencytype", "budget", "date", "id", "recipient", "email", "phone",
 			"amount", "saving%", "saving" };
 	
-	private @Getter @Setter String type, currencyType, budget, id, recipient, email, phone;
+	private @Getter @Setter String type, currencyType, budget, name, recipient, email, phone;
 	private @Getter @Setter LocalDate date;
 	private @Getter @Setter double amount, savingPercent, savingAmount;
 
@@ -27,7 +27,7 @@ public class Transaction implements Serializable {
 		setCurrencyType((String) data[3]);
 		setBudget((String) data[4]);
 		setDate((LocalDate) data[5]);
-		setId((String) data[6]);
+		setName((String) data[6]);
 		setRecipient((String) data[7]);
 		setEmail((String) data[8]);
 		setPhone((String) data[9]);

@@ -42,10 +42,12 @@ public class TransactionPacket extends Packet {
 		User user = getUser();
 
 		if (user == null) {
-			return new Object[] { type.getPacketId(), false, "Session not found." };
+			return new Object[] { type.getPacketId(), ordinal, false, "Session not found." };
 		}
+		
+		System.out.println("Sending packet. " + user.getTransactions().values().size());
 
-		return new Object[] { type.getPacketId(), ordinal, user.getTransactions() };
+		return new Object[] { type.getPacketId(), ordinal, true, user.getTransactions().values().toArray() };
 	}
 
 	private Object[] remove() {
@@ -56,16 +58,20 @@ public class TransactionPacket extends Packet {
 					"Session not found." };
 		}
 
-		String id = (String) data[1];
+		String id = (String) data[2];
+		
+		if (id == null) {
+			return new Object[] { type.getPacketId(), ordinal, false };
+		}
 		
 		if (id.equals("REMOVEALLDATA")) {
 			user.getTransactions().clear();
-			return new Object[] { type.getPacketId(), ordinal, true };
+			return new Object[] { type.getPacketId(), ordinal, true, id };
 		}
 
 		if (user.getTransactions().containsKey(id)) {
 			user.getTransactions().remove(id);
-			return new Object[] { type.getPacketId(), ordinal, true };
+			return new Object[] { type.getPacketId(), ordinal, true, id };
 		}
 
 		return new Object[] { type.getPacketId(), ordinal, false };
@@ -77,10 +83,16 @@ public class TransactionPacket extends Packet {
 		if (user == null) {
 			return new Object[] { type.getPacketId(), ordinal, false, "Session not found." };
 		}
-		System.out.println("Adding Transaction...");
 		
 		Transaction t = new Transaction(data);
-		user.getTransactions().put(t.getId(), t);
+		
+		if (user.getTransactions().containsKey(t.getName())) {
+			return new Object[] { type.getPacketId(), ordinal, false, t.getName() + " already exists." };
+		}
+		
+		System.out.println("Adding Transaction " + t.getName());
+		
+		user.getTransactions().put(t.getName(), t);
 		user.save();
 
 		return new Object[] { type.getPacketId(), ordinal, true };
@@ -90,8 +102,9 @@ public class TransactionPacket extends Packet {
 	public void debug() {
 		StringBuilder sb = new StringBuilder();
 		for (Object o : data) {
-			sb.append(o == null ? "null " : o.getClass().getSimpleName() + " ");
+			sb.append(o == null ? "null " : o.toString() + " ");
 		}
+		
 		System.out.println(sb.toString());
 	}
 

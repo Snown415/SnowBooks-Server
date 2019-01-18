@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Random;
 
+import com.sun.org.apache.xalan.internal.xsltc.compiler.util.Type;
+
 import javafx.concurrent.Task;
 import snow.Launcher;
 import snow.Server;
@@ -50,6 +52,8 @@ public class Console {
 			break;
 		case SPOOF_TRANSACTIONS:
 			String value = input.split(" ")[1];
+			String[] types = { "Service", "Contract", "Business Expense",
+					"Personal Expense", "Savings" };
 
 			if (Server.getActiveUsers().containsKey(value)) {
 				User user = Server.getActiveUsers().get(value);
@@ -63,12 +67,23 @@ public class Console {
 
 						for (int i = 1; i < 13; i++) {
 							for (int j = 0; j < 10; j++) {
+								int rng = ran.nextInt(100);
+								String type = rng < 80 ? types[rng < 40 ? 0 : 1] : types[rng > 90 ? 2 : 3];
 								int day = ran.nextInt(28) + 1;
+								
 								double amount = ran.nextInt(500);
 								double savingPercent = ran.nextInt(85);
+								double profit = amount * (savingPercent / 100);
+
+								if (type.contains("Expense")) {
+									amount *= -1;
+									savingPercent = 0;
+									profit = 0;
+								}
+								
 								LocalDate localDate = LocalDate.of(2019, i, day);
-								Object[] array = { -1, -1, "Income", "USD", "", localDate, user.generateSecurityCode(),
-										"", "", "", amount, savingPercent, amount * savingPercent };
+								Object[] array = { -1, -1, type, "USD", "", localDate, user.generateSecurityCode(),
+										"", "", "", amount, savingPercent, profit };
 								Transaction t = new Transaction(array);
 								user.getTransactions().put(t.getName(), t);
 

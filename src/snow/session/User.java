@@ -14,6 +14,7 @@ import lombok.Getter;
 import lombok.Setter;
 import snow.Serialize;
 import snow.Server;
+import snow.transaction.Budget;
 import snow.transaction.Transaction;
 
 public class User implements Serializable {
@@ -34,11 +35,13 @@ public class User implements Serializable {
 	private @Getter @Setter boolean timedOut;
 	
 	private @Getter LinkedHashMap<String, Transaction> transactions;
+	private @Getter LinkedHashMap<String, Budget> budgets;
 	
 	public User(String username, String password, String ip) {
 		setUsername(username);
 		setCurrentIP(ip);
 		transactions = new LinkedHashMap<>();
+		budgets = new LinkedHashMap<>();
 		
 		setSecurityKey(generateSecurityCode());
 		setVectorKey(generateSecurityCode());
@@ -71,6 +74,9 @@ public class User implements Serializable {
 	public void validateIntegrity() {
 		if (transactions == null)
 			transactions = new LinkedHashMap<>();
+		
+		if (budgets == null)
+			budgets = new LinkedHashMap<>();
 	}
 	
 	public void save() {

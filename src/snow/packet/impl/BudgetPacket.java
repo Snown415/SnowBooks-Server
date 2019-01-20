@@ -4,12 +4,12 @@ import snow.packet.Packet;
 import snow.packet.PacketProcessor;
 import snow.packet.PacketType;
 import snow.session.User;
-import snow.transaction.Transaction;
+import snow.transaction.Budget;
 
-public class TransactionPacket extends Packet {
+public class BudgetPacket extends Packet {
 
-	public TransactionPacket(String ip, Object[] data) {
-		super(PacketType.TRANSACTION, ip, data);
+	public BudgetPacket(String ip, Object[] data) {
+		super(PacketType.BUDGET, ip, data);
 	}
 	
 	private int ordinal;
@@ -34,17 +34,31 @@ public class TransactionPacket extends Packet {
 
 		return new Object[] { type.getPacketId(), ordinal, false };
 	}
-
-	private Object[] send() {
+	
+	private Object[] add() {
 		User user = getUser();
 
 		if (user == null) {
 			return new Object[] { type.getPacketId(), ordinal, false, "Session not found." };
 		}
+		
+		String name = (String) data[2];
+		String desc = (String) data[3];
+		Double amount = (Double) data[4];
+		
+		Budget b = new Budget(name, desc, amount);
+		
+		if (user.getBudgets().containsKey(b.getName())) {
+			
+			return new Object[] { type.getPacketId(), ordinal, false, b.getName() + " already exists." };
+		}
+		
+		user.getBudgets().put(b.getName(), b);
+		user.save();
 
-		return new Object[] { type.getPacketId(), ordinal, true, user.getTransactions().values().toArray() };
+		return new Object[] { type.getPacketId(), ordinal, true };
 	}
-
+	
 	private Object[] remove() {
 		User user = getUser();
 
@@ -55,56 +69,33 @@ public class TransactionPacket extends Packet {
 
 		String id = (String) data[2];
 		
-		if (id == null || id.equals("null")) {
-			if (user.getTransactions().containsKey("")) {
-				user.getTransactions().remove("");
-				return new Object[] { type.getPacketId(), ordinal, true, "" };
-			}
-			return new Object[] { type.getPacketId(), ordinal, false };
-		}
-		
 		if (id.equals("REMOVEALLDATA")) {
-			user.getTransactions().clear();
+			user.getBudgets().clear();
 			return new Object[] { type.getPacketId(), ordinal, true, id };
 		}
 
-		if (user.getTransactions().containsKey(id)) {
-			user.getTransactions().remove(id);
+		if (user.getBudgets().containsKey(id)) {
+			user.getBudgets().remove(id);
 			user.save();
 			return new Object[] { type.getPacketId(), ordinal, true, id };
 		}
 
 		return new Object[] { type.getPacketId(), ordinal, false };
 	}
-
-	private Object[] add() {
+	
+	private Object[] send() {
 		User user = getUser();
 
 		if (user == null) {
 			return new Object[] { type.getPacketId(), ordinal, false, "Session not found." };
 		}
-		
-		Transaction t = new Transaction(data);
-		
-		if (user.getTransactions().containsKey(t.getName())) {
-			
-			return new Object[] { type.getPacketId(), ordinal, false, t.getName() + " already exists." };
-		}
-		
-		user.getTransactions().put(t.getName(), t);
-		user.save();
 
-		return new Object[] { type.getPacketId(), ordinal, true };
+		return new Object[] { type.getPacketId(), ordinal, true, user.getBudgets().values().toArray() };
 	}
 
 	@Override
 	public void debug() {
-		StringBuilder sb = new StringBuilder();
-		for (Object o : data) {
-			sb.append(o == null ? "null " : o.toString() + " ");
-		}
-		
-		System.out.println(sb.toString());
+
 	}
 
 }

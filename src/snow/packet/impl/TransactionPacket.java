@@ -4,6 +4,7 @@ import snow.packet.Packet;
 import snow.packet.PacketProcessor;
 import snow.packet.PacketType;
 import snow.session.User;
+import snow.transaction.Budget;
 import snow.transaction.Transaction;
 
 public class TransactionPacket extends Packet {
@@ -69,6 +70,18 @@ public class TransactionPacket extends Packet {
 		}
 
 		if (user.getTransactions().containsKey(id)) {
+			Transaction t = user.getTransactions().get(id);
+			
+			if (t.getBudget() != null && !t.getBudget().equals("None")) {
+				Budget b = user.getBudgets().get(t.getBudget());
+				
+				if (!b.getTransactions().contains(t)) {
+					System.err.println("This transaction doesn't exist in budget " + t.getBudget());
+				} else {
+					b.removeTransaction(t);
+				}
+			}
+			
 			user.getTransactions().remove(id);
 			user.save();
 			return new Object[] { type.getPacketId(), ordinal, true, id };
@@ -84,7 +97,7 @@ public class TransactionPacket extends Packet {
 			return new Object[] { type.getPacketId(), ordinal, false, "Session not found." };
 		}
 		
-		Transaction t = new Transaction(data);
+		Transaction t = new Transaction(user, data);
 		
 		if (user.getTransactions().containsKey(t.getName())) {
 			

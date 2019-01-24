@@ -11,11 +11,18 @@ public class BudgetPacket extends Packet {
 	public BudgetPacket(String ip, Object[] data) {
 		super(PacketType.BUDGET, ip, data);
 	}
-	
+
 	private int ordinal;
+	private User user;
 
 	@Override
 	public Object[] process() {
+		
+		user = getUser();
+
+		if (user == null) {
+			return new Object[] { type.getPacketId(), ordinal, false, "Session not found." };
+		}
 
 		ordinal = (int) data[1];
 		PacketProcessor p = PacketProcessor.values()[ordinal];
@@ -34,41 +41,33 @@ public class BudgetPacket extends Packet {
 
 		return new Object[] { type.getPacketId(), ordinal, false };
 	}
-	
-	private Object[] add() {
-		User user = getUser();
 
-		if (user == null) {
-			return new Object[] { type.getPacketId(), ordinal, false, "Session not found." };
-		}
-		
-		String name = (String) data[2];
-		String desc = (String) data[3];
-		Double amount = (Double) data[4];
-		
+
+	private Object[] add(String name, String desc, Double amount) {
 		Budget b = new Budget(name, desc, amount);
-		
+
 		if (user.getBudgets().containsKey(b.getName())) {
-			
+
 			return new Object[] { type.getPacketId(), ordinal, false, b.getName() + " already exists." };
 		}
-		
+
 		user.getBudgets().put(b.getName(), b);
 		user.save();
 
 		return new Object[] { type.getPacketId(), ordinal, true };
 	}
-	
+
+	private Object[] add() {
+		String name = (String) data[2];
+		String desc = (String) data[3];
+		Double amount = (Double) data[4];
+
+		return add(name, desc, amount);
+	}
+
 	private Object[] remove() {
-		User user = getUser();
-
-		if (user == null) {
-			return new Object[] { type.getPacketId(), ordinal, false,
-					"Session not found." };
-		}
-
 		String id = (String) data[2];
-		
+
 		if (id.equals("REMOVEALLDATA")) {
 			user.getBudgets().clear();
 			return new Object[] { type.getPacketId(), ordinal, true, id };
@@ -82,16 +81,11 @@ public class BudgetPacket extends Packet {
 
 		return new Object[] { type.getPacketId(), ordinal, false };
 	}
-	
+
 	private Object[] send() {
-		User user = getUser();
-
-		if (user == null) {
-			return new Object[] { type.getPacketId(), ordinal, false, "Session not found." };
-		}
-
 		return new Object[] { type.getPacketId(), ordinal, true, user.getBudgets().values().toArray() };
 	}
+	
 
 	@Override
 	public void debug() {

@@ -1,5 +1,5 @@
 package snow.packet;
 
 public enum PacketProcessor {
-	ADD, REMOVE, SEND
+	ADD, REMOVE, SEND, MODIFY
 }

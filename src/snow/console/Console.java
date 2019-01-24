@@ -1,12 +1,8 @@
 package snow.console;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.Random;
 
-import com.sun.org.apache.xalan.internal.xsltc.compiler.util.Type;
-
-import javafx.concurrent.Task;
 import snow.Launcher;
 import snow.Server;
 import snow.session.User;
@@ -84,7 +80,7 @@ public class Console {
 								LocalDate localDate = LocalDate.of(2019, i, day);
 								Object[] array = { -1, -1, type, "USD", "", localDate, user.generateSecurityCode(),
 										"", "", "", amount, savingPercent, profit };
-								Transaction t = new Transaction(array);
+								Transaction t = new Transaction(user, array);
 								user.getTransactions().put(t.getName(), t);
 
 							}

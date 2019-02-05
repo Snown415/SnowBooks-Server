@@ -40,9 +40,11 @@ public class Worker extends Thread {
 			Object[] data = (Object[]) input.readObject();
 			
 			if (!isValidPacket(data)) {
+				response = new Object[] { -1, "Invalid Packet." };
 				output.writeObject(response);
 				output.flush();
 				output.close();
+				response = null;
 				return;
 			}
 			
@@ -50,12 +52,10 @@ public class Worker extends Thread {
 			PacketType type = PacketType.getPacketTypes().get(packetId);		
 			response = PacketHandler.processIncomingPacket(ip, type, data);
 			
-			if (response != null) {
-				output.writeObject(response);
-				output.flush();
-				output.close();
-				response = null;
-			}
+			output.writeObject(response);
+			output.flush();
+			output.close();
+			response = null;
 
 		} catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();
@@ -76,11 +76,8 @@ public class Worker extends Thread {
 		
 		Integer packetId = (Integer) data[0];
 
-		if (!PacketType.getPacketTypes().containsKey(packetId)) {
-			response = new Object[] { -1, "Invalid Packet." };
-			response = null;
+		if (!PacketType.getPacketTypes().containsKey(packetId))
 			return false;
-		}
 		
 		return true;
 	}

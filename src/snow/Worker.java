@@ -39,27 +39,14 @@ public class Worker extends Thread {
 
 			Object[] data = (Object[]) input.readObject();
 			
-			if (!(data[0] instanceof Integer)) {
-				System.err.println("Invalid Packet!");
-				
-				for (Object o : data) {
-					System.err.print(o.toString());
-				}
-				
+			if (!isValidPacket(data)) {
+				output.writeObject(response);
+				output.flush();
+				output.close();
 				return;
 			}
 			
 			Integer packetId = (Integer) data[0];
-
-			if (!PacketType.getPacketTypes().containsKey(packetId)) {
-				response = new Object[] { -1, "Invalid Packet." };
-				output.writeObject(response);
-				output.flush();
-				output.close();
-				response = null;
-				return;
-			}
-
 			PacketType type = PacketType.getPacketTypes().get(packetId);		
 			response = PacketHandler.processIncomingPacket(ip, type, data);
 			
@@ -73,5 +60,28 @@ public class Worker extends Thread {
 		} catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	private boolean isValidPacket(Object[] data) {
+		
+		if (!(data[0] instanceof Integer)) {
+			System.err.println("Invalid Packet!");
+			
+			for (Object o : data) {
+				System.err.print(o.toString());
+			}
+			
+			return false;
+		}
+		
+		Integer packetId = (Integer) data[0];
+
+		if (!PacketType.getPacketTypes().containsKey(packetId)) {
+			response = new Object[] { -1, "Invalid Packet." };
+			response = null;
+			return false;
+		}
+		
+		return true;
 	}
 }
